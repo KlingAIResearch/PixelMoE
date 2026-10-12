@@ -7,12 +7,12 @@ This repository provides the official PyTorch implementation of **PixelMoE**, wi
 ## ⚡️ Introduction
 
 [![PixelMoE framework](assets/pixelmoe_framework.png)](assets/pixelmoe_framework.pdf)
-PixelMoE brings standard LLM-style Mixture-of-Experts to pixel-space diffusion. 
+- PixelMoE brings standard LLM-style Mixture-of-Experts to pixel-space diffusion. 
 Each image token activates 4 of 32 routed experts, alongside a shared expert, with bias-based load balancing. 
 
-Pixel-Space Hierarchical Flow Matching generates images in two stages, first establishing the overall structure at low resolution, then refining details at the target resolution.
+- Pixel-Space Hierarchical Flow Matching generates images in two stages, first establishing the overall structure at low resolution, then refining details at the target resolution.
 
-PixelMoE achieves FID **1.47** at 256×256 and **1.53** at 512×512 on class-conditional ImageNet-1K, without representation alignment, or perceptual losses.
+- PixelMoE achieves FID **1.47** at 256×256 and **1.53** at 512×512 on class-conditional ImageNet-1K, without representation alignment, or perceptual losses.
 
 ## 🪐 Installation
 
@@ -30,7 +30,7 @@ bash scripts/setup_env.sh
 conda activate pixelmoe
 ```
 
-The setup installs PyTorch, [GMuon](https://github.com/nanovisionx/gmuon), the customized torch-fidelity package, and FlashAttention.
+The setup installs PyTorch, [GMuon](https://github.com/nanovisionx/gmuon), and FlashAttention.
 
 ## 🦄 Data Preparation
 
@@ -62,6 +62,8 @@ We provide Base, Large, and Huge training configurations at both resolutions:
 | PixelMoE-L-E32A4 | [pixelmoe_l_e32a4_256.sh](configs/pixelmoe_l_e32a4_256.sh) | [pixelmoe_l_e32a4_512.sh](configs/pixelmoe_l_e32a4_512.sh) |
 | PixelMoE-H-E32A4 | [pixelmoe_h_e32a4_256.sh](configs/pixelmoe_h_e32a4_256.sh) | [pixelmoe_h_e32a4_512.sh](configs/pixelmoe_h_e32a4_512.sh) |
 
+Model names follow `PixelMoE-{B/L/H}-E32A4/{8/16}`, where `E32A4` denotes 32 routed experts with 4 activated per token, and `/8` or `/16` denotes the patch size. DDT and MoE architecture settings are defined in [model_pixelmoe.py](model_pixelmoe.py).
+
 For example, train PixelMoE-B-E32A4 at 256×256:
 
 ```bash
@@ -70,12 +72,10 @@ bash scripts/train.sh configs/pixelmoe_b_e32a4_256.sh
 
 The scripts default to one node with 8 GPUs. Set `GPUS`, `NNODES`, `NODE_RANK`, and `MASTER_ADDR` for other distributed setups. Additional command-line arguments override the script settings.
 
-Model names follow `PixelMoE-{B/L/H}-E32A4/{8/16}`, where `E32A4` denotes 32 routed experts with 4 activated per token, and `/8` or `/16` denotes the patch size. DDT and MoE architecture settings are defined in [model_pixelmoe.py](model_pixelmoe.py).
-
 **Notes:**
 
 - **Regularization:** To reduce overfitting, Huge models enable random cropping, Gaussian input noise, and dropout in selected attention and FFN layers from epoch 200.
-- **Training stability:** [JiT](https://arxiv.org/html/2511.13720v1#S4.SS3) uses a lower bound on the velocity denominator to avoid division by zero near the clean endpoint. We also bound this denominator, clip gradients, skip optimizer updates with excessively large or non-finite gradient norms, and exclude training samples whose stage-relative sigma is close to zero.
+- **Training stability:** Following [JiT](https://arxiv.org/html/2511.13720v1#S4.SS3), we clamp the velocity denominator to a positive minimum. Our training setup additionally uses gradient clipping, skips optimizer updates when gradient norms exceed a threshold or are non-finite, and avoids sampling stage-relative sigma values near zero.
 
 ## ⛅  Evaluation
 
