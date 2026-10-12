@@ -1,0 +1,13 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+.vscode/
+.codex/
+.aws/
+.agents/
+
+outputs/
+checkpoints/
+wandb/
+runs/

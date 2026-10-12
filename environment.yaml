@@ -1,0 +1,26 @@
+name: pixelmoe
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - pip
+  - git
+  - setuptools
+  - wheel
+  - packaging
+  - ninja
+  - psutil
+  - pip:
+      - --extra-index-url https://download.pytorch.org/whl/cu128
+      - torch==2.9.1+cu128
+      - torchvision==0.24.1+cu128
+      - numpy==2.4.4
+      - einops==0.8.1
+      - opencv-python==4.11.0.86
+      - pillow==12.2.0
+      - scipy==1.18.0
+      - tensorboard==2.21.0
+      - tqdm==4.70.0
+      # Use the same GMuon and JiT FID commits as the tested environment.
+      - gram-newton-schulz @ git+https://github.com/nanovisionx/gmuon.git@4863cc2446f09a54d937c579d4e775c125f5ab2e
+      - torch-fidelity @ git+https://github.com/LTH14/torch-fidelity.git@bfe72b995473e4fee9351705d7b005f17442a4ca
