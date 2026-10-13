@@ -13,6 +13,6 @@ TRAIN_ARGS=(
 
 SAMPLE_ARGS=(
   --sigma_min 0.04
-  --cfg 3.7 --interval_max 0.8
+  --cfg 3.0 --interval_max 0.82
   --eval_use_second_ema
 )
